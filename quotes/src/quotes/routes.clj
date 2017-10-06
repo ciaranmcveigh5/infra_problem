@@ -18,7 +18,7 @@
       correlation-id-middleware))
 
 (defn -main []
-  (let [port (Integer/parseInt (utils/config "APP_PORT" "8080"))]
+  (let [port (Integer/parseInt (utils/config "APP_PORT" "9000"))]
     (log/info "Running quotes on port" port)
     (run-server (var app) {:ip "0.0.0.0"
                            :port port})))
