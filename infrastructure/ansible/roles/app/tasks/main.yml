@@ -1,0 +1,57 @@
+---
+
+  - name: Copy in common-utils
+    copy:
+      src: "../../../../{{ item }}"
+      dest: "/tmp/{{ item }}"
+      directory_mode: True
+      mode: 0755
+      directory_mode: '0755'
+      owner: ec2-user
+      group: ec2-user
+      force: yes
+    with_items:
+      - common-utils
+      - front-end
+      - newsfeed
+      - quotes
+
+  - name: Copy in common-utils
+    copy:
+      src: "../../../../docker-compose.yml"
+      dest: "/tmp/docker-compose.yml"
+      mode: 0755
+      owner: ec2-user
+      group: ec2-user
+      force: yes
+
+  - name: Remove old containers
+    shell: docker-compose rm -f
+    args:
+      chdir: /tmp/
+
+  - name: Pull new config for docker compose
+    shell: docker-compose pull
+    args:
+      chdir: /tmp/
+
+  - name: Build containers and demonise
+    shell: docker-compose up --build -d
+    args:
+      chdir: /tmp/
+
+  # - name: Build jenkins image
+  #   shell: "docker build -t {{ item }}infra -f /tmp/{{ item }}/Dockerfile /tmp/{{ item }}/"
+  #   with_items:
+  #     - common-utils
+  #     - front-end
+  #     - newsfeed
+  #     - quotes
+  #
+  # - name: Create a jenkins container
+  #   shell: "docker run  JENKINS_ADMIN_PASSWORD=admin jenkinsinfra"
+  #   with_items:
+  #     - common-utils
+  #     - front-end
+  #     - newsfeed
+  #     - quotes

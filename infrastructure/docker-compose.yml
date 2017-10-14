@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  newsfeed:
+    build: ./newsfeed
+    # ports:
+    #   - 5001:9001
+  quotes:
+    build: ./quotes
+    # ports:
+    #   - 5002:9000
+  frontend:
+    build: ./front-end
+    ports:
+      - 8085:8080
+    depends_on:
+      - newsfeed
+      - quotes

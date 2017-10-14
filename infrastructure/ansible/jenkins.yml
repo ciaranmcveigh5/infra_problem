@@ -1,0 +1,10 @@
+---
+
+- name: Set up jenkins
+  hosts: jenkins
+  gather_facts: true
+  remote_user: ec2-user
+  become: yes
+
+  roles:
+    - jenkins

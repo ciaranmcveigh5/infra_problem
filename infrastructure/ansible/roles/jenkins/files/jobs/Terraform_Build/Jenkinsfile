@@ -1,0 +1,10 @@
+node {
+  stage('Terraform Build') {
+    git credentialsId: 'bc4cdd02-8691-46c4-bb93-20278a920677', url: 'git@bitbucket.org:devservices/pinones.git'
+    dir("infrastructure/terraform/configurations/${APPLICATION}") {
+      hash = "${HASH}".trim()
+      sh "terraform init"
+      sh "terraform apply -var 'hash=${hash}'"
+    }
+  }
+}

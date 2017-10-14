@@ -1,0 +1,24 @@
+---
+
+  - name: Copy in files
+    copy:
+      src: ../files/
+      dest: /tmp/jenkins
+      directory_mode: True
+      mode: 0755
+      directory_mode: '0755'
+      owner: ec2-user
+      group: ec2-user
+      force: yes
+
+  - name: Kill running containers
+    shell: docker kill $(docker ps -aq)
+
+  - name: Remove stopped containers
+    shell: docker rm $(docker ps -aq)
+
+  - name: Build jenkins image
+    shell: docker build -t jenkinsinfra -f /tmp/jenkins/Dockerfile /tmp/jenkins/
+
+  - name: Create a jenkins container
+    shell: docker run -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -d -e JENKINS_ADMIN_PASSWORD=admin jenkinsinfra

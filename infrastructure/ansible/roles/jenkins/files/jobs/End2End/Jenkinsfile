@@ -1,0 +1,65 @@
+def buildIfChanged(app) {
+
+  modulePath = "containers/${app}"
+  sh """git ls-tree HEAD ${modulePath} --abbrev=7 | awk '{print \$3}' > /tmp/${app}hash"""
+  treeHash = readFile "/tmp/${app}hash"
+
+  if (treeHash == "") {
+    treeHash = "latest"
+  }
+
+  sh "sh containers/hashValid.sh ${app} ${treeHash}"
+  hashExists = readFile "/tmp/hashValid${app}"
+  def intHashExists = hashExists.toInteger()
+
+  if (intHashExists > 0) {
+    stage('DockerBuild') {
+      echo "💪  Building"
+      build job: 'Docker_Build_Image', parameters: [
+        string(name: 'APPLICATION', value: "${app}"),
+        string(name: 'HASH', value: "${treeHash}")
+      ]
+    }
+    stage('DockerImageTests') {
+      echo "Running image tests"
+    }
+    stage('TerraformBuild') {
+      build job: 'Terraform_Build', parameters: [
+        string(name: 'APPLICATION', value: "ecs"),
+        string(name: 'HASH', value: "${treeHash}")
+      ]
+    }
+    stage('IntegrationTests') {
+      build job: 'Integration_Tests'
+    }
+  } else {
+    echo "🎉  No changes in - skipping build"
+  }
+
+}
+
+node {
+  git branch: 'feature/AS-41', credentialsId: 'bc4cdd02-8691-46c4-bb93-20278a920677', url: 'git@bitbucket.org:devservices/pinones.git'
+
+
+  def containers = ["api-gateway", "simple-backend"]
+  containers.each {
+    buildIfChanged("${it}")
+  }
+
+}
+
+// stage 'DockerBuild'
+//     build job: 'Docker_Build_Image', parameters: [
+//             string(name: 'APPLICATION', value: 'aem')
+//         ]
+// stage 'TerraformBuild'
+//     build job: 'Terraform_Build', parameters: [
+//             string(name: 'APPLICATION', value: 'test')
+//         ]
+// stage 'IntegrationTests'
+//     build job: 'Integration_Tests'
+// node {
+//     stage 'One'
+//         echo 'Hello World'
+// }

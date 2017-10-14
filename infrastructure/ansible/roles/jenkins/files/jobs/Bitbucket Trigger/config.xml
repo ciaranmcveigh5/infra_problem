@@ -1,0 +1,35 @@
+<project>
+<description/>
+<keepDependencies>false</keepDependencies>
+<properties/>
+<scm class="hudson.plugins.git.GitSCM" plugin="git@3.6.0">
+<configVersion>2</configVersion>
+<userRemoteConfigs>
+<hudson.plugins.git.UserRemoteConfig>
+<url>git@bitbucket.org:devservices/pinones.git</url>
+<credentialsId>bc4cdd02-8691-46c4-bb93-20278a920677</credentialsId>
+</hudson.plugins.git.UserRemoteConfig>
+</userRemoteConfigs>
+<branches>
+<hudson.plugins.git.BranchSpec>
+<name>**</name>
+</hudson.plugins.git.BranchSpec>
+</branches>
+<doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+<submoduleCfg class="list"/>
+<extensions/>
+</scm>
+<canRoam>true</canRoam>
+<disabled>false</disabled>
+<blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+<blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+<triggers>
+<com.cloudbees.jenkins.plugins.BitBucketTrigger plugin="bitbucket@1.1.5">
+<spec/>
+</com.cloudbees.jenkins.plugins.BitBucketTrigger>
+</triggers>
+<concurrentBuild>false</concurrentBuild>
+<builders/>
+<publishers/>
+<buildWrappers/>
+</project>
