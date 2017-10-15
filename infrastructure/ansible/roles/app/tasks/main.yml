@@ -2,7 +2,7 @@
 
   - name: Copy in common-utils
     copy:
-      src: "../../../../{{ item }}"
+      src: "../../../{{ item }}/"
       dest: "/tmp/{{ item }}"
       directory_mode: True
       mode: 0755
@@ -41,6 +41,9 @@
 
   # - name: change permissions Docker compose
   #   shell: chmod +x /usr/local/bin/docker-compose
+
+  - name: build base image
+    shell: docker build -t
 
   - name: Remove old containers
     shell: docker-compose rm -f
