@@ -2,21 +2,21 @@
 
 # INFRASTRUCTURE REPORT
 
-# Please scroll down for discussion and future improvements
+Please scroll down for discussion and future improvements
 
-################## LOCAL DEV ENVIRONMENT APP DEPLOYMENT #####################
+# LOCAL DEV ENVIRONMENT APP DEPLOYMENT
 
 Install Docker & Docker Compose https://docs.docker.com/docker-for-mac/install/#where-to-go-next
 
 From root of infrastructure directory
 
-# Build base image
+Build base image
 docker build -f ./common-utils/Dockerfile -t infrabase ./common-utils
 
-# Run Docker Compose file
+Run Docker Compose file
 docker-compose up --build -d
 
-# For clean rebuild once changes have been made to the docker files or docker compose file run
+For clean rebuild once changes have been made to the docker files or docker compose file run
 docker-compose rm -f
 docker-compose pull
 docker-compose up --build -d
@@ -27,11 +27,11 @@ Navigate to localhost:8085
 
 
 
-################# LOCAL COMMANDS FOR AWS APP DEPLOYMENT ######################
+# LOCAL COMMANDS FOR AWS APP DEPLOYMENT
 
 Install Homebrew https://brew.sh/
 
-# Install terraform and ansible via homebrew or follow links for official installations
+Install terraform and ansible via homebrew or follow links for official installations
 Install terraform https://www.terraform.io/downloads.html
 Install ansible http://docs.ansible.com/ansible/latest/intro_installation.html
 
@@ -53,7 +53,7 @@ Save the .pem file to a location on your local machine and change user permissio
 Use the command "ssh-keygen -y -f /path/to/.pem/file" to output your public key (path to pem referring to the pem file you just downloaded)
 Using the generated public key to update ./terraform/jenkins/jenkins.tf specifically the resource "aws_key_pair" changing the public key parameter (line 50) to the public key you just generated
 
-# Note this next step is required as the app requires some data that is output via the jenkins terraform build
+Note this next step is required as the app requires some data that is output via the jenkins terraform build
 pushd ./terraform/jenkins
 terraform init
 terraform apply
@@ -69,7 +69,7 @@ Next in ./ansible/hosts add/edit
 [app]
 {{ public ip of app instance spun up by terraform }}
 
-# The public ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
+The public ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
 
 pushd ./ansible
 ansible-playbook app.yml --key-file /path/to/.pem/file
@@ -83,7 +83,7 @@ In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name 
 
 
 
-############## LOCAL COMMANDS FOR AWS JENKINS DEPLOYMENT ###############
+# LOCAL COMMANDS FOR AWS JENKINS DEPLOYMENT
 
  Add a folder to the infra-problem s3 bucket called keys
  Add to this folder a file called key.txt with the contents of the .pem file and apply s3 master key encryption to it
@@ -97,7 +97,7 @@ In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name 
 
  Update ./ansible/roles/jenkins/files/Dockerfile (line 62) "RUN printf "[app]\n10.1.5.40" > /etc/ansible/hosts" to "RUN printf "[app]\n{{ PRIVATE ip of app ec2 instance }}" > /etc/ansible/hosts"
 
-## The private ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
+ The private ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
 
  Next in ./ansible/hosts add/edit
 
@@ -121,9 +121,9 @@ In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name 
 
 
 
-################### DISCUSSION ####################
+# DISCUSSION
 
-# METHOD #
+# METHOD
 
 My approach was to use AWS, Terraform, Ansible and Docker to deploy the application. I split the application into 4 containers, firstly a base container which installed the common utilities required between the apps, I then used this base container as the base image for the front-end, newsfeed and quotes containers. Using a base container enables quicker builds for my other containers as the steps in the base container don't need to be rerun additionally after the image had been pulled down to the machine it is cached increasing speed further. I split the application into front-end, newsfeed and quotes as it allows each microservice to scale independently of the other ensuring only parts of the application that require scaling scale rather than the entire application. Docker also provides a consistent build environment reducing the risk associated with the transition from development to production.
 
@@ -140,7 +140,7 @@ Going forward I feel its important to bring Dev and Ops closer together, constan
 Please see future improvements below.  
 
 
-# IMPROVEMENTS #
+# IMPROVEMENTS
 
 AWS
 - Deploy app in multiple az's for redundancy
@@ -175,7 +175,14 @@ MISC
 - replace aws links in README.md with awscli commands
 - Implement integration tests
 
-## TASK ##
+
+
+
+
+
+
+
+# TASK
 
 This project contains three services:
 
