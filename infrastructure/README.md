@@ -6,20 +6,20 @@ Please scroll down for discussion and future improvements
 
 # LOCAL DEV ENVIRONMENT APP DEPLOYMENT
 
-Install Docker & Docker Compose https://docs.docker.com/docker-for-mac/install/#where-to-go-next
+- Install Docker & Docker Compose https://docs.docker.com/docker-for-mac/install/#where-to-go-next
 
 From root of infrastructure directory
 
 Build base image
-docker build -f ./common-utils/Dockerfile -t infrabase ./common-utils
+- docker build -f ./common-utils/Dockerfile -t infrabase ./common-utils
 
 Run Docker Compose file
-docker-compose up --build -d
+- docker-compose up --build -d
 
 For clean rebuild once changes have been made to the docker files or docker compose file run
-docker-compose rm -f
-docker-compose pull
-docker-compose up --build -d
+- docker-compose rm -f
+- docker-compose pull
+- docker-compose up --build -d
 
 Navigate to localhost:8085
 
@@ -29,53 +29,53 @@ Navigate to localhost:8085
 
 # LOCAL COMMANDS FOR AWS APP DEPLOYMENT
 
-Install Homebrew https://brew.sh/
+- Install Homebrew https://brew.sh/
 
 Install terraform and ansible via homebrew or follow links for official installations
-Install terraform https://www.terraform.io/downloads.html
-Install ansible http://docs.ansible.com/ansible/latest/intro_installation.html
+- Install terraform https://www.terraform.io/downloads.html
+- Install ansible http://docs.ansible.com/ansible/latest/intro_installation.html
 
-First create environment variable for your aws keys (replace the variables with your keys)
-export AWS_ACCESS_KEY_ID={{ key }}
-export AWS_SECRET_ACCESS_KEY={{ secret_key }}
+- Create environment variable for your aws keys (replace the variables with your keys)
+- export AWS_ACCESS_KEY_ID={{ key }}
+- export AWS_SECRET_ACCESS_KEY={{ secret_key }}
 
-First update the variable office_cidr_range in ./terraform/vpc/global.tf to your office ip range
+- Update the variable office_cidr_range in ./terraform/vpc/global.tf to your office ip range
 
-Create a Bucket in the region eu-west-2 named infra-problem http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html (This is required to store the terraform state)
+- Create a Bucket in the region eu-west-2 named infra-problem http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html (This is required to store the terraform state)
 
-pushd ./terraform/vpc
-terraform init
-terraform apply
-popd
+- pushd ./terraform/vpc
+- terraform init
+- terraform apply
+- popd
 
-Create a key pair in aws http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
-Save the .pem file to a location on your local machine and change user permissions to 400
-Use the command "ssh-keygen -y -f /path/to/.pem/file" to output your public key (path to pem referring to the pem file you just downloaded)
-Using the generated public key to update ./terraform/jenkins/jenkins.tf specifically the resource "aws_key_pair" changing the public key parameter (line 50) to the public key you just generated
+- Create a key pair in aws http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+- Save the .pem file to a location on your local machine and change user permissions to 400
+- Use the command "ssh-keygen -y -f /path/to/.pem/file" to output your public key (path to pem referring to the pem file you just downloaded)
+- Using the generated public key to update ./terraform/jenkins/jenkins.tf specifically the resource "aws_key_pair" changing the public key parameter (line 50) to the public key you just generated
 
 Note this next step is required as the app requires some data that is output via the jenkins terraform build
-pushd ./terraform/jenkins
-terraform init
-terraform apply
-popd
+- pushd ./terraform/jenkins
+- terraform init
+- terraform apply
+- popd
 
-pushd ./terraform/app
-terraform init
-terraform apply
-popd
+- pushd ./terraform/app
+- terraform init
+- terraform apply
+- popd
 
-Next in ./ansible/hosts add/edit
+- Next in ./ansible/hosts add/edit
 
 [app]
 {{ public ip of app instance spun up by terraform }}
 
 The public ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
 
-pushd ./ansible
-ansible-playbook app.yml --key-file /path/to/.pem/file
-popd
+- pushd ./ansible
+- ansible-playbook app.yml --key-file /path/to/.pem/file
+- popd
 
-In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name of the elb paste this into your browser
+- In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name of the elb paste this into your browser
 
 
 
@@ -85,38 +85,38 @@ In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name 
 
 # LOCAL COMMANDS FOR AWS JENKINS DEPLOYMENT
 
- Add a folder to the infra-problem s3 bucket called keys
- Add to this folder a file called key.txt with the contents of the .pem file and apply s3 master key encryption to it
+ - Add a folder to the infra-problem s3 bucket called keys
+ - Add to this folder a file called key.txt with the contents of the .pem file and apply s3 master key encryption to it
 
  Ensure you have run the steps in "LOCAL COMMANDS FOR AWS APP DEPLOYMENT" above up to "pushd ./terraform/jenkins" from there
 
- pushd ./terraform/jenkins
- terraform init
- terraform apply
- popd
+ - pushd ./terraform/jenkins
+ - terraform init
+ - terraform apply
+ - popd
 
- Update ./ansible/roles/jenkins/files/Dockerfile (line 62) "RUN printf "[app]\n10.1.5.40" > /etc/ansible/hosts" to "RUN printf "[app]\n{{ PRIVATE ip of app ec2 instance }}" > /etc/ansible/hosts"
+ - Update ./ansible/roles/jenkins/files/Dockerfile (line 62) "RUN printf "[app]\n10.1.5.40" > /etc/ansible/hosts" to "RUN printf "[app]\n{{ PRIVATE ip of app ec2 instance }}" > /etc/ansible/hosts"
 
  The private ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
 
- Next in ./ansible/hosts add/edit
+ - Next in ./ansible/hosts add/edit
 
  [jenkins]
  {{ public ip of jenkins instance spun up by terraform }}
 
- pushd ./ansible
- ansible-playbook jenkins.yml --key-file /path/to/.pem/file
- popd
+ - pushd ./ansible
+ - ansible-playbook jenkins.yml --key-file /path/to/.pem/file
+ - popd
 
- In aws console navigate to EC2 > Load Balancers > jenkins-elb and copy the DNS name of the elb paste this into your browser or public_ip_of_jenkins_instance:8080
+ - In aws console navigate to EC2 > Load Balancers > jenkins-elb and copy the DNS name of the elb paste this into your browser or public_ip_of_jenkins_instance:8080
 
- Log into jenkins User: admin Password: admin
+ - Log into jenkins User: admin Password: admin
 
  3 jobs available
 
- deploy_app = destroys old container running app and spins up new one
- terraform_build = builds aws infrastructure for app
- terraform_destroy = destroys aws infrastructure for app once finished
+ - deploy_app = destroys old container running app and spins up new one
+ - terraform_build = builds aws infrastructure for app
+ - terraform_destroy = destroys aws infrastructure for app once finished
 
 
 
