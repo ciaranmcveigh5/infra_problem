@@ -25,7 +25,7 @@
       group: ec2-user
       force: yes
 
-  - name: Download foo.conf
+  - name: Download docker-compose
     get_url:
       url: "https://github.com/docker/compose/releases/download/1.15.0/docker-compose-$(uname -s)-$(uname -m)"
       dest: /usr/local/bin/docker-compose
@@ -43,7 +43,7 @@
   #   shell: chmod +x /usr/local/bin/docker-compose
 
   - name: build base image
-    shell: docker build -t
+    shell: docker build -f /tmp/common-utils/Dockerfile -t infrabase /tmp/common-utils
 
   - name: Remove old containers
     shell: docker-compose rm -f
