@@ -25,6 +25,12 @@
       group: ec2-user
       force: yes
 
+  - name: install Docker compose
+    shell: curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.15.0/docker-compose-$(uname -s)-$(uname -m)"
+
+  - name: change permissions Docker compose
+    shell: chmod +x /usr/local/bin/docker-compose
+
   - name: Remove old containers
     shell: docker-compose rm -f
     args:

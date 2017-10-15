@@ -23,54 +23,25 @@ data "aws_ami" "ec2_linux" {
   }
 }
 
-# IAM ROLES
+# IAM ROLES / POLICIES
 
-resource "aws_iam_role" "test_role" {
-  name = "test_role"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
+resource "aws_iam_role" "jenkins_role" {
+    name = "jenkinsrole"
+    assume_role_policy = "${file("policies/jenkins_role.json")}"
 }
-EOF
+
+resource "aws_iam_role_policy" "jenkins_admin_policy" {
+    name = "jenkinpolicy"
+    policy = "${file("policies/jenkins_policy.json")}"
+    role = "${aws_iam_role.jenkins_role.id}"
 }
 
 resource "aws_iam_instance_profile" "jenkins_profile" {
-  name  = "jenkins_profile"
-  role = "${aws_iam_role.test_role.name}"
+    name = "jenkinsprofile"
+    path = "/"
+    role = "${aws_iam_role.jenkins_role.name}"
 }
 
-# IAM POLICIES
-
-resource "aws_iam_policy" "jenkins" {
-	name        = "jenkins_policy"
-	path        = "/"
-	description = "jenkins policy"
-
-	policy = <<EOF
-{
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-	  		"Action": [
-	    		"ec2:Describe*"
-	  		],
-	  		"Effect": "Allow",
-	  		"Resource": "*"
-		}
-	]
-}
-EOF
-}
 
 # KEY PAIRS
 
@@ -87,7 +58,7 @@ resource "aws_elb" "jenkins" {
 	subnets = ["${data.terraform_remote_state.vpc.infra_problem_public_subnet}"]
 
 	listener {
-		instance_port     = 8000
+		instance_port     = 8080
 		instance_protocol = "http"
 		lb_port           = 80
 		lb_protocol       = "http"
@@ -97,7 +68,7 @@ resource "aws_elb" "jenkins" {
 		healthy_threshold   = 2
 		unhealthy_threshold = 2
 		timeout             = 3
-		target              = "HTTP:8000/"
+		target              = "HTTP:8080/"
 		interval            = 30
 	}
 
@@ -116,7 +87,7 @@ resource "aws_elb" "jenkins" {
 
 resource "aws_instance" "jenkins" {
 	ami = "ami-0a85946e"
-	instance_type = "t2.small"
+	instance_type = "t2.large"
 	vpc_security_group_ids = ["${data.terraform_remote_state.vpc.infra_problem_base_sg}"]
   associate_public_ip_address = true
 	subnet_id = "${data.terraform_remote_state.vpc.infra_problem_public_subnet}"

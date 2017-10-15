@@ -1,5 +1,10 @@
 ---
 
+  - name: Clean artifact path
+    file:
+      state: absent
+      path: /tmp/jenkins
+
   - name: Copy in files
     copy:
       src: ../files/
@@ -13,12 +18,21 @@
 
   - name: Kill running containers
     shell: docker kill $(docker ps -aq)
+    ignore_errors: True
 
   - name: Remove stopped containers
     shell: docker rm $(docker ps -aq)
+    ignore_errors: True
 
   - name: Build jenkins image
-    shell: docker build -t jenkinsinfra -f /tmp/jenkins/Dockerfile /tmp/jenkins/
+    shell: docker build --no-cache -t jenkinsinfra -f /tmp/jenkins/Dockerfile /tmp/jenkins/
 
   - name: Create a jenkins container
-    shell: docker run -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -d -e JENKINS_ADMIN_PASSWORD=admin jenkinsinfra
+    shell: docker run -p 8080:8080 --name jenkinsinfra -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -d -e JENKINS_ADMIN_PASSWORD=admin jenkinsinfra
+
+  - name: Wait for jenkins to start
+    wait_for:
+      timeout: 30
+
+  - name: Change permissions
+    shell: docker exec jenkinsinfra chmod 400 /var/jenkins_home/.ssh/id_rsa

@@ -1,6 +1,6 @@
 ---
 
-- name: Set up jenkins
+- name: Set up application
   hosts: app
   gather_facts: true
   remote_user: ec2-user

@@ -1,58 +1,42 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@2.14.1">
+<project>
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <properties>
-    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
-      <autoRebuild>false</autoRebuild>
-      <rebuildDisabled>false</rebuildDisabled>
-    </com.sonyericsson.rebuild.RebuildSettings>
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>APPLICATION</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>db</string>
-              <string>sonarqube</string>
-              <string>fuse</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>HASH</name>
-          <description></description>
-          <defaultValue>latest</defaultValue>
-        </hudson.model.StringParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
-    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-      <triggers/>
-    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-  </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.40">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.5.1">
-      <configVersion>2</configVersion>
-      <userRemoteConfigs>
-        <hudson.plugins.git.UserRemoteConfig>
-          <url>git@bitbucket.org:devservices/pinones.git</url>
-          <credentialsId>bc4cdd02-8691-46c4-bb93-20278a920677</credentialsId>
-        </hudson.plugins.git.UserRemoteConfig>
-      </userRemoteConfigs>
-      <branches>
-        <hudson.plugins.git.BranchSpec>
-          <name>*/master</name>
-        </hudson.plugins.git.BranchSpec>
-      </branches>
-      <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-      <submoduleCfg class="list"/>
-      <extensions/>
-    </scm>
-    <scriptPath>containers/jenkins/jobs/Terraform_Build/Jenkinsfile</scriptPath>
-    <lightweight>true</lightweight>
-  </definition>
-  <triggers/>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.6.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/ciaranmcveigh5/infra_problem.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
   <disabled>false</disabled>
-</flow-definition>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cd $WORKSPACE/infrastructure/terraform/app
+terraform init
+terraform apply</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

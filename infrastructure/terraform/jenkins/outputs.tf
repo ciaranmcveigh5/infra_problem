@@ -3,7 +3,7 @@ output "deployer_key" {
 }
 
 output "admin_iam" {
-  value = "${aws_iam_role.test_role.arn}"
+  value = "${aws_iam_role.jenkins_role.arn}"
 }
 
 output "admin_profile" {

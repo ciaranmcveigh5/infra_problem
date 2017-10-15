@@ -6,6 +6,8 @@ MAINTAINER Ciaran McVeigh
 
 ENV JAVA_OPTS="-Dhudson.Main.development=true -Djenkins.install.runSetupWizard=false"
 
+ENV ANSIBLE_HOST_KEY_CHECKING=False
+
 
 # Copy Init Scripts
 
@@ -57,7 +59,7 @@ RUN apt-get install -y \
 
 RUN pip install awscli
 
-RUN printf "[app]\n35.176.12.233" > /etc/ansible/hosts
+RUN printf "[app]\n10.1.5.40" > /etc/ansible/hosts
 
 COPY scripts/key/key.sh /tmp/key.sh
 RUN chmod +x /tmp/key.sh

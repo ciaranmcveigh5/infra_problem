@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
-  <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
@@ -28,8 +27,8 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>cd $WORKSPACE/infrastructure/terraform/app
-terraform destroy -force</command>
+      <command>cd $WORKSPACE/infrastructure/ansible
+ansible-playbook app.yml --key-file /var/jenkins_home/.ssh/id_rsa</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
