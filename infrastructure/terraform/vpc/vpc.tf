@@ -138,6 +138,13 @@ resource "aws_security_group" "infra_problem_base" {
 		cidr_blocks = ["${var.office_cidr_range}"]
 	}
 
+	ingress {
+		from_port = 0
+		to_port = 65535
+		protocol = "tcp"
+		self = true
+	}
+
 	egress {
 		from_port       = 0
 		to_port         = 65535

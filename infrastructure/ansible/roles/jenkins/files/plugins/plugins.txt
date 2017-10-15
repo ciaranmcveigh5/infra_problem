@@ -1,13 +1,10 @@
 ansicolor
-bitbucket
-bitbucket-oauth
 build-name-setter
 credentials
 display-url-api
 git
 git-client
 icon-shim
-junit
 mailer
 matrix-project
 postbuild-task
@@ -20,4 +17,3 @@ workflow-step-api
 preSCMbuildstep
 docker-workflow
 workflow-aggregator
-sonar
