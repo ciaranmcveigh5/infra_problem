@@ -35,7 +35,7 @@ Install terraform and ansible via homebrew or follow links for official installa
 - Install terraform https://www.terraform.io/downloads.html
 - Install ansible http://docs.ansible.com/ansible/latest/intro_installation.html
 
-- Create environment variable for your aws keys (replace the variables with your keys)
+Create environment variable for your aws keys (replace the variables with your keys)
 - export AWS_ACCESS_KEY_ID={{ key }}
 - export AWS_SECRET_ACCESS_KEY={{ secret_key }}
 
@@ -43,27 +43,33 @@ Install terraform and ansible via homebrew or follow links for official installa
 
 - Create a Bucket in the region eu-west-2 named infra-problem http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html (This is required to store the terraform state)
 
+Vpc terraform build
 - pushd ./terraform/vpc
 - terraform init
 - terraform apply
 - popd
 
+Key Pair Creation
 - Create a key pair in aws http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
 - Save the .pem file to a location on your local machine and change user permissions to 400
 - Use the command "ssh-keygen -y -f /path/to/.pem/file" to output your public key (path to pem referring to the pem file you just downloaded)
 - Using the generated public key to update ./terraform/jenkins/jenkins.tf specifically the resource "aws_key_pair" changing the public key parameter (line 50) to the public key you just generated
 
+Jenkins Terraform build
 Note this next step is required as the app requires some data that is output via the jenkins terraform build
 - pushd ./terraform/jenkins
 - terraform init
 - terraform apply
 - popd
 
+
+App Terraform build
 - pushd ./terraform/app
 - terraform init
 - terraform apply
 - popd
 
+Update Ansible Hosts
 - Next in ./ansible/hosts add/edit
 
 [app]
@@ -71,10 +77,12 @@ Note this next step is required as the app requires some data that is output via
 
 The public ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
 
+Run App Ansible Play
 - pushd ./ansible
 - ansible-playbook app.yml --key-file /path/to/.pem/file
 - popd
 
+Navigate To App
 - In aws console navigate to EC2 > Load Balancers > app-elb and copy the DNS name of the elb paste this into your browser
 
 
@@ -90,24 +98,29 @@ The public ip can be found via aws console in the EC2 section the instance will 
 
  Ensure you have run the steps in "LOCAL COMMANDS FOR AWS APP DEPLOYMENT" above up to "pushd ./terraform/jenkins" from there
 
+Jenkins Terraform Build
  - pushd ./terraform/jenkins
  - terraform init
  - terraform apply
  - popd
 
+Update Dockerfile
  - Update ./ansible/roles/jenkins/files/Dockerfile (line 62) "RUN printf "[app]\n10.1.5.40" > /etc/ansible/hosts" to "RUN printf "[app]\n{{ PRIVATE ip of app ec2 instance }}" > /etc/ansible/hosts"
+ - The private ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
 
- The private ip can be found via aws console in the EC2 section the instance will be named app (A dynamic host file using tags to be implemented in future to remove this step)
-
+Update Snsible Hosts
  - Next in ./ansible/hosts add/edit
 
  [jenkins]
  {{ public ip of jenkins instance spun up by terraform }}
 
+
+Run Ansible Play
  - pushd ./ansible
  - ansible-playbook jenkins.yml --key-file /path/to/.pem/file
  - popd
 
+Navigate to Jenkins
  - In aws console navigate to EC2 > Load Balancers > jenkins-elb and copy the DNS name of the elb paste this into your browser or public_ip_of_jenkins_instance:8080
 
  - Log into jenkins User: admin Password: admin
