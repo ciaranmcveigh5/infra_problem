@@ -52,12 +52,12 @@
     ignore_errors: true
 
   - name: Pull new config for docker compose
-    shell: docker-compose pull
+    shell: /usr/local/bin/docker-compose pull
     args:
       chdir: /tmp/
 
   - name: Build containers and demonise
-    shell: docker-compose up --build -d
+    shell: /usr/local/bin/docker-compose up --build -d
     args:
       chdir: /tmp/
 
