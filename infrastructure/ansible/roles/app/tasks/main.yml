@@ -46,9 +46,10 @@
     shell: docker build -f /tmp/common-utils/Dockerfile -t infrabase /tmp/common-utils
 
   - name: Remove old containers
-    shell: docker-compose rm -f
+    shell: /usr/local/bin/docker-compose rm -f
     args:
       chdir: /tmp/
+    ignore_errors: true
 
   - name: Pull new config for docker compose
     shell: docker-compose pull

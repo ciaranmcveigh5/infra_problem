@@ -75,8 +75,8 @@ resource "aws_elb" "app" {
 
 resource "aws_instance" "app" {
 	ami = "ami-0a85946e"
-	instance_type = "t2.small"
-	security_groups = ["${data.terraform_remote_state.vpc.infra_problem_base_sg}"]
+	instance_type = "t2.large"
+	vpc_security_group_ids = ["${data.terraform_remote_state.vpc.infra_problem_base_sg}"]
   associate_public_ip_address = true
 	subnet_id = "${data.terraform_remote_state.vpc.infra_problem_public_subnet}"
 	iam_instance_profile = "${data.terraform_remote_state.jenkins.admin_profile}"
