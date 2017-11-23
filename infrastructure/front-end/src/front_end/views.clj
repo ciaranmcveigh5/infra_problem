@@ -17,7 +17,7 @@
             [:meta {:name "viewport"
                     :content "width=device-width, initial-scale=1"}]
             [:title "Newsfeed"]
-            (include-css (str (:static_path cfg) "/css/bootstrap.min.css"))]
+            (include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css")]
            [:body [:div.container content]])))
 
 (defn error []

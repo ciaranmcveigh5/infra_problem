@@ -4,7 +4,7 @@
             [org.httpkit.client :as http]))
 
 (def quote-service-url
-  (utils/config "QUOTE_SERVICE_URL" "http://quotes:9000"))
+  (utils/config "QUOTE_SERVICE_URL" "http://quotes:9000")) ; call function from common-utils core.clj which sets variables for later use
 
 (def newsfeed-service-url
   (utils/config "NEWSFEED_SERVICE_URL" "http://newsfeed:9001"))
@@ -16,7 +16,7 @@
               :timeout    1000
               :user-agent "front-end"})
 
-(defn- handle-response
+(defn- handle-response ; defn- is private, defn is public
   [response]
   (let [error (:error @response)
         status (:status @response)]
@@ -26,7 +26,7 @@
           :else                                @response)))
 
 (defn get-quote []
-  (http/get (str quote-service-url "/api/quote") options))
+  (http/get (str quote-service-url "/api/quote") options)) ; Send get request to quotes server
 
 (defn handle-quote-response
   [resp]
@@ -35,7 +35,7 @@
 (defn get-news []
   (http/get (str newsfeed-service-url "/api/feeds") (assoc-in options
                                                               [:headers "X-Auth-Token"]
-                                                              newsfeed-token)))
+                                                              newsfeed-token))) ; Send get request to newsfeed server with auth token
 
 (defn- handle-news-values
   [key value]

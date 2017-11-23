@@ -1,22 +1,79 @@
 ---
 
+  - name: Create target directories
+    file:
+      path: "/tmp/{{ item }}"
+      state: directory
+      mode: 0755
+    with_items:
+      - common-utils/src/common_utils
+      - front-end/resources/public/css
+      - front-end/resources/views/templates
+      - front-end/src/front_end
+      - front-end/test/front_end/integration
+      - front-end/test/front_end/unit
+      - newsfeed/resources
+      - newsfeed/src/newsfeed
+      - newsfeed/test/newsfeed/integration
+      - newsfeed/test/newsfeed/unit
+      - newsfeed/test/resources
+      - quotes/resources
+      - quotes/src/quotes
+      - quotes/test/quotes/integration
+
+
   - name: Copy in common-utils
     copy:
-      src: "../../../{{ item }}/"
+      src: "../../../{{ item }}"
       dest: "/tmp/{{ item }}"
-      directory_mode: True
+      # directory_mode: True
       mode: 0755
-      directory_mode: '0755'
       owner: ec2-user
       group: ec2-user
       force: yes
     with_items:
-      - common-utils
-      - front-end
-      - newsfeed
-      - quotes
+      - common-utils/src/common_utils/core.clj
+      - common-utils/src/common_utils/middleware.clj
+      - common-utils/test/common_utils/middleware_test.clj
+      - common-utils/Dockerfile
+      - common-utils/Makefile
+      - common-utils/pom.xml
+      - common-utils/project.clj
+      - front-end/resources/public/css/bootstrap.min.css
+      - front-end/resources/public/serve.py
+      - front-end/resources/views/templates/base.html
+      - front-end/resources/views/templates/home.html
+      - front-end/resources/logback.xml
+      - front-end/src/front_end/core.clj
+      - front-end/src/front_end/data.clj
+      - front-end/src/front_end/utils.clj
+      - front-end/src/front_end/views.clj
+      - front-end/test/front_end/integration/core.clj
+      - front-end/test/front_end/unit/data.clj
+      - front-end/Dockerfile
+      - front-end/Makefile
+      - front-end/project.clj
+      - newsfeed/resources/logback.xml
+      - newsfeed/src/newsfeed/api.clj
+      - newsfeed/src/newsfeed/core.clj
+      - newsfeed/test/newsfeed/integration/api.clj
+      - newsfeed/test/newsfeed/unit/api.clj
+      - newsfeed/test/resources/logback-test.xml
+      - newsfeed/Dockerfile
+      - newsfeed/Makefile
+      - newsfeed/pom.xml
+      - newsfeed/project.clj
+      - quotes/resources/logback.xml
+      - quotes/resources/quotes.json
+      - quotes/src/quotes/api.clj
+      - quotes/src/quotes/routes.clj
+      - quotes/test/quotes/integration/api.clj
+      - quotes/Dockerfile
+      - quotes/Makefile
+      - quotes/project.clj
 
-  - name: Copy in common-utils
+
+  - name: Copy in docker compose
     copy:
       src: "../../../../docker-compose.yml"
       dest: "/tmp/docker-compose.yml"
@@ -25,22 +82,19 @@
       group: ec2-user
       force: yes
 
-  - name: Download docker-compose
-    get_url:
-      url: "https://github.com/docker/compose/releases/download/1.15.0/docker-compose-$(uname -s)-$(uname -m)"
-      dest: /usr/local/bin/docker-compose
-      mode: 0755
-
-  # - name: install Docker compose
-  #   shell: curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.15.0/docker-compose-$(uname -s)-$(uname -m)"
-  #   ignore_errors: true
+  - name: install Docker compose
+    shell: curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.15.0/docker-compose-$(uname -s)-$(uname -m)"
+    ignore_errors: true
 
   - name: wait for install
     wait_for:
       timeout: 10
 
-  # - name: change permissions Docker compose
-  #   shell: chmod +x /usr/local/bin/docker-compose
+  - name: change permissions Docker compose
+    file:
+      path: /usr/local/bin/docker-compose
+      mode: 0755
+
 
   - name: build base image
     shell: docker build -f /tmp/common-utils/Dockerfile -t infrabase /tmp/common-utils
@@ -60,19 +114,3 @@
     shell: /usr/local/bin/docker-compose up --build -d
     args:
       chdir: /tmp/
-
-  # - name: Build jenkins image
-  #   shell: "docker build -t {{ item }}infra -f /tmp/{{ item }}/Dockerfile /tmp/{{ item }}/"
-  #   with_items:
-  #     - common-utils
-  #     - front-end
-  #     - newsfeed
-  #     - quotes
-  #
-  # - name: Create a jenkins container
-  #   shell: "docker run  JENKINS_ADMIN_PASSWORD=admin jenkinsinfra"
-  #   with_items:
-  #     - common-utils
-  #     - front-end
-  #     - newsfeed
-  #     - quotes

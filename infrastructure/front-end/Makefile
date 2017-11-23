@@ -1,7 +1,8 @@
 BUILD_DIR=build
 APPS=front-end
 LIBS=common-utils
-STATIC_BASE=./public
+STATIC_BASE=./resources/public
+TARGET=./target
 STATIC_PATHS=css
 STATIC_ARCHIVE=$(BUILD_DIR)/static.tgz
 INSTALL_TARGETS=$(addsuffix .install, $(LIBS))
@@ -9,21 +10,15 @@ APP_JARS=$(addprefix $(BUILD_DIR)/, $(addsuffix .jar, $(APPS)))
 
 all: $(BUILD_DIR) $(APP_JARS) $(STATIC_ARCHIVE)
 
-libs: $(INSTALL_TARGETS)
-
-# %.libs:
-# 	cd common-utils && lein install
-
 static: $(STATIC_ARCHIVE)
 
-%.install:
-	cd common-utils && lein install
+.PHONY: all test clean # required as folder containers test folder/file
 
-%.test:
+test:
 	lein midje
 
 clean:
-	rm -rf $(BUILD_DIR) $(addsuffix /target, newsfeed)
+	rm -rf $(BUILD_DIR) $(TARGET)
 
 $(APP_JARS): | $(BUILD_DIR)
 	lein uberjar && cp target/uberjar/*-standalone.jar $@

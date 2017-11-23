@@ -17,6 +17,7 @@ Run Docker Compose file
 - docker-compose up --build -d
 
 For clean rebuild once changes have been made to the docker files or docker compose file run
+- (NEW) docker-compose stop
 - docker-compose rm -f
 - docker-compose pull
 - docker-compose up --build -d
@@ -41,7 +42,7 @@ Create environment variable for your aws keys (replace the variables with your k
 
 - Update the variable office_cidr_range in ./terraform/vpc/global.tf to your office ip range
 
-- Create a Bucket in the region eu-west-2 named infra-problem http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html (This is required to store the terraform state)
+- Create a Bucket in the region eu-west-2 named (NEW) something like infra-problem, also change ./ansible/roles/jenkins/files/scripts/key/key.sh and update the bucket name from infra-problem to the one you have selected http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html (This is required to store the terraform state)
 
 Vpc terraform build
 - pushd ./terraform/vpc
@@ -188,6 +189,66 @@ MISC
 - replace aws links in README.md with awscli commands
 - Implement integration tests
 
+# POST SUBMISSION REVIEW
+
+# CHANGES THAT HAVE BEEN MADE
+- ansible copy takes too long can speed up considerably by referencing each individual file, also investigate synchronize module, folders needed to be created prior to the individual file copy, even if i didn't do it individually on the original submission i should of at least made a comment in the README highlighting the fact that this step takes a long time
+- did not take into consideration unquie bucket names within a region therefore my instructions to create a bucket called infra_problem are not possible in eu-west-2 if a different name is used the key.sh script need to be update with the correct s3 bucket name which i also did not reference
+- had 2 references of directory mode in the "copy in common-utils" task
+- Download docker-compose task not working in local environment however is working in jenkins environment, investigate, for now changed task from "get url" command to "shell: curl... " command (HTTP ERROR 400 BAD REQUEST)
+- changed "change permissions Docker compose" shell: chmod to file mode to remove ansible warning
+- removed commented out code
+- changed logback.xml to log to logfile aswell as stdout and then mapped the log file back to the host in the docker compose file, alternative options change docker file to > log.txt could have implement a data container or configured a log driver
+- test in make files wasn't being executed, need to change from %.test to test and implement .PHONY (.PHONY tells Make which targets are not files. This avoids conflict with files of the same name, and improves performance, https://stackoverflow.com/questions/2145590/what-is-the-purpose-of-phony-in-a-makefile) as we had a folder called test in the same directory as the Makefile
+- rm target folder in make file not working, since i changed the folder structure the target files were not longer located in their previous positions, change pointers to correct folders
+- bootstrap not being picked up by the folder reference, found this via inspecting the page source, changed to CDN bootstrap to resolve. Initially thought this was due to the public folder not being located in the resources folder, changed this and still was unable to get bootstrap working
+- no -i host for ansible commands or should have had an ansible.cfg file in the repo to point at the host file in the repo
+- set ANSIBLE-HOST-KEY-CHECKING = False through ansible.cfg, not an issue in jenkins
+- did not mention in instructions that the user needed to change the repo the jenkins jobs are pointed at to their specific repo by changing the <hudson.plugins.git.UserRemoteConfig> in the job config.xml files
+- added to documentation docker-compose stop, containers need to be stopped before they can be removed
+
+# IDEAS FROM POST SUBMISSION REVIEW
+
+- use of terrform workspace for multiple environments
+- using terraform module to enable multi environment and multi application builds from minimal code.
+- use of multi-stage builds rather than the builder method, this was recently introduced to docker to stop people having to maintain 2 Dockerfiles, (large images take longer to download, take up more disk space, unnecessary components more places to fail)
+- include --no-cache in docker build instructions
+- suggested use of ASG also leads to vendor lock in as does the implementation of ELBs, task stated that the development of this project needed to be such that vendor lock in was avoided, potentially look into haproxy as an alternative, added operational complexity with haproxy keeping config updated as container are created and destroyed, load balancing strategy must support running multiple versions at the same time for rolling deployments.
+- missing favicon could generate one and implement into html (found in google inspect)
+- tested stop the quotes and newsfeed container to see if we could fail gracefully or continue (bulkhead principal in microservices) resulted in a 500 error and message "An error occurred when processing your request. Please try again later" look into how to enable to app to still run when one service is available, test are in place to test the error response
+- add linting stage
+
+
+# ELABORATION ON IMPROVEMENTS
+
+
+# Thing to keep in mind for future development
+
+Loose coupling
+High Cohension
+Single responsiblity
+Separation of concerns
+smart endpoints dumb pipes
+each service should handle its own data (cant talk to another services data store only the exposed api's)
+design for failure of each components
+keep in mind asynchronous communication and eventual consistency
+easier to update libraries for new feature
+consider whether you would be better modulising your code base to better understand service boundaries before extracting the service into its own microservice
+new concerns - service discovery, distributed logging, distribution (latency a dozen service calls therefore require asynchronous calls to get acceptable level of performance), hard to debug eventual consistency issues since item is normals consistent by the time the investigation starts
+independent deployments reduce the risk associated with the deployment, one small microservice rather than the whole monolith
+tests should cover all communication paths plus test failure modes such as timeouts circuit breakers and bulkheads.
+test pyramid unit, integration, component, e2e, exploratory
+monitoring - resource utilisation (cpu, ram), App response time, App should be set up to make it easy to monitor/analyse user demographics, ci dashboard with commit message if build is broken, deployment frequency (if it hurts...), deployment speed/lead time (time from dev to prod), failure rate/% of successful deployments, time to recovery (chaos monkey). In the same way A/B testing can be used to confirm an application change is having a real effect on your target market, devops changes can evidenced via these metrics (note most likely a teething period so must allow time for methodology to embed in the team before referring to the metrics)   
+
+
+Conways law - what is the business structure
+
+Docker swarm - https://technologyconversations.com/2016/08/01/integrating-proxy-with-docker-swarm-tour-around-docker-1-12-series/
+
+
+XP practices
+TTD
+Pair programming
 
 
 

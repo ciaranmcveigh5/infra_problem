@@ -3,14 +3,20 @@ version: '3'
 services:
   newsfeed:
     build: ./newsfeed
+    volumes:
+      - ./newsfeed.log:/var/log/newsfeed.log
     # ports:
     #   - 5001:9001
   quotes:
     build: ./quotes
+    volumes:
+      - ./quotes.log:/var/log/quotes.log
     # ports:
     #   - 5002:9000
   frontend:
     build: ./front-end
+    volumes:
+      - ./frontend.log:/var/log/frontend.log
     ports:
       - 8085:8080
     depends_on:
